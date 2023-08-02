@@ -1,74 +1,134 @@
 const path=require('path');
 const Signup= require('../models/signup');
-const { error } = require('console');
+const bcrypt = require('bcryptjs')
+const { SequelizeUniqueConstraintError } = require('sequelize');
 
-exports.userSignup=((req,res,next)=>{
-    const username= req.body.username;
+exports.userSignup=(async(req,res,next)=>{
+    try{
+    // const {username,name,email,password}=req.body;
+    const username=req.body.username;
     const name=req.body.name;
     const email=req.body.email;
     const password=req.body.password;
-    Signup.create({
-        username:username,
-        name:name,
-        email:email,
-        password:password
-    })
-    .then((result)=>{
-        res.json({
-            message:" Signed up successfully"
-        })
-    })
-    .catch((error)=>{
-        console.log(error)
-    })
-})
-exports.userSignin=((req,res,next)=>{
-    const username= req.body.username;
-    const password=req.body.password;
-    Signup.findAll({
-        where:{
-            username:username,       
-            password:password
-        }
+    console.log(username,name,email,password)
+
+
+    const existingUser = await Signup.findOne({
+        where: {
+          username: username,
+        },
+      });
+  
+      if (existingUser) {
+        return res.status(403).json({
+          message: 'User already exists',
+          success: false,
+        });
+      }
+
+
+    const saltrounds=10;
+    bcrypt.hash(password,saltrounds,async (err,hashpass)=>{
+        console.log(hashpass);
         
-    })
-    .then((user)=>{
-        console.log("user.......................",user)
-        const data= ( user === []? null:user);
-
-        if (data===null) {
-            // User not found in the database
-        console.log("data.......................",data)
-
-            return res.status(401).json({
-              message: "User not authorized",
-              data:null
-            });
-          }
-          else{
-            res.json({
-                message:"login successfull",
-                data:user
-            })
-          }
-    })
-    .catch((error)=>{
-        console.log(error)
-    })
-})
-exports.checkUsername=(req,res,next)=>{
-    const username=req.params.username;
-    Signup.findByPk(username)
-    .then((result)=>{
-        console.log("pk>>>>>.",result);
-        res.json({
-            message:"success ",
-            data:result
-
+    await Signup.create({
+           username: username,
+            name:name,
+           email: email,
+            password:hashpass
         })
-    })
-    .catch(error=>{
-        console.log(error);
+       if(err){
+        throw new Error(err)
+       }
+          
+            return  res.status(201).json({
+             message:" Signed up successfully"
+            })
+       
+        })
+    }
+    catch(error){
+        if (error instanceof SequelizeUniqueConstraintError) {
+            // Handle uniqueness constraint violation
+            return res.status(403).json({
+              message: 'User already exists',
+              success: false,
+            });
+        }
+            else{
+                return res.status(500).json(error)
 
-    })
-}
+            }
+    }
+})
+
+       
+exports.userSignin=(async(req,res,next)=>{
+    try{
+        const {username,password}=req.body;
+        const user=await Signup.findAll({
+            where:{
+                username:username,
+            }           
+        })
+        if(user.length>0){
+            bcrypt.compare(password,user[0].password,(error,result)=>{ 
+                if(error){
+                   throw new Error('Internal Error') 
+                }
+                if(result===true){
+                    return res.status(200).json({
+                        success:true,
+                        message:"User Logged in successfully"
+                    })
+                }
+                else{
+                    return res.status(400).json({
+                        success:false,
+                        message:"Incorrect Password"
+                    })
+                    
+                }
+            })
+
+        }else{
+            return res.status(404).json({
+                success:false,
+                message:"User Does not exist"
+            })
+
+        }
+       
+           
+    
+    }
+    catch(error){
+        return res.status(500).json({
+            success:false,
+            message:error
+        })
+
+    }
+})
+   
+   
+// exports.checkUsername= async(req,res,next)=>{
+//     const username=req.params.username;
+//    const user=await Signup.findByPk(username);
+//    console.log("usercheck",user)
+//     if(user !==null){
+//         return res.status(403).json({
+//             message:"User Already exists ",
+//             success:false
+
+//         })
+//     }else{
+//         return res.status(200).json({
+//             success:true,
+//             message:"user not available"
+
+//         })
+//     }
+    
+   
+// }
