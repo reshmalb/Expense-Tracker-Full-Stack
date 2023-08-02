@@ -32,12 +32,25 @@ exports.userSignin=((req,res,next)=>{
         }
         
     })
-    .then((result)=>{
-        console.log("result",result[0]);
-        res.json({
-            message:" Login successfull",         
+    .then((user)=>{
+        console.log("user.......................",user)
+        const data= ( user === []? null:user);
 
-        })
+        if (data===null) {
+            // User not found in the database
+        console.log("data.......................",data)
+
+            return res.status(401).json({
+              message: "User not authorized",
+              data:null
+            });
+          }
+          else{
+            res.json({
+                message:"login successfull",
+                data:user
+            })
+          }
     })
     .catch((error)=>{
         console.log(error)
