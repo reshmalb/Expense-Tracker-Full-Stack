@@ -1,5 +1,6 @@
 const express= require('express')
 const userRoutes= require('./routes/route')
+const expenseRoutes=require('./routes/expense')
 const sequelize=require('./utils/database')
 const cors = require('cors'); 
 
@@ -10,6 +11,7 @@ app.use(cors({
     origin: 'http://localhost:3000', // Allow requests from this origin
   })); 
 app.use(userRoutes);
+app.use(expenseRoutes);
 
 
 

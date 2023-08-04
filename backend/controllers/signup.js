@@ -1,7 +1,6 @@
 const path = require("path");
 const Signup = require("../models/signup");
 const bcrypt = require("bcryptjs");
-const { SequelizeUniqueConstraintError } = require("sequelize");
 
 exports.userSignup = async (req, res, next) => {
 	try {
@@ -62,6 +61,7 @@ exports.userSignin = async (req, res, next) => {
 			},
 		});
 		if (user.length > 0) {
+			console.log("lenghth:",user.length);
 
 			bcrypt.compare(password, user[0].password, (error, result) => {
 				if (error) {
@@ -86,6 +86,7 @@ exports.userSignin = async (req, res, next) => {
 			});
 		}
 	} catch (error) {
+		console.log("ERROR",error);
 		return res.status(500).json({
 			success: false,
 			message: error,
