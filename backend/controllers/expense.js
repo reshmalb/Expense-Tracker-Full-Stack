@@ -6,10 +6,12 @@ exports.createExpense= async(req,res,next)=>{
     const {amount,description,category}= req.body;
     
     try{
-        const expense= await Expense.create(
+        const expense= await  Expense.create(
             {
                 amount,
-                description,category
+                description,
+                category,
+                userId: req.user.id
             }
         )
 
@@ -25,25 +27,18 @@ exports.createExpense= async(req,res,next)=>{
 
 }
 
-exports.retrieveAllExpenseData=async(req,res,next)=>{
+exports.retrieveAllExpenseData = async(req,res,next)=>{
     try{
-        const expenseList=await  Expense.findAll({
-            where :{
-                username:req.body.username
-            }
-        })
-
-        if(expenseList){
-            return res.json({
-                message:"success",
-                success:true,
-                data:expenseList
-            })
-        }
+      const expenses= await  Expense.findAll({ where : { userId: req.user.id}})
+       if(expenses){
+            return res.status(200).json({expenses, success: true})
+               
+       }         
 
     }
     catch(error){
         console.log(error);
+        return res.status(500).json({ error: error, success: false})
     }
 
 }

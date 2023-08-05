@@ -1,7 +1,16 @@
 const path = require("path");
-const Signup = require("../models/signup");
+const  User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken')
 
+
+function isstringinvalid(string){
+    if(string == undefined ||string.length === 0){
+        return true
+    } else {
+        return false
+    }
+}
 exports.userSignup = async (req, res, next) => {
 	try {
 		const username = req.body.username;
@@ -10,7 +19,7 @@ exports.userSignup = async (req, res, next) => {
 		const password = req.body.password;
 		console.log(username, name, email, password);
 		/*Check whether usernme already exists */
-		const existingUser = await Signup.findAll({
+		const existingUser = await User.findAll({
 			where: {
 				username: username,
 			},
@@ -21,7 +30,7 @@ exports.userSignup = async (req, res, next) => {
 			const saltrounds = 10;
 			bcrypt.hash(password, saltrounds, async (err, hashpass) => {
 				console.log(hashpass);
-				const user = await Signup.create({
+				const user = await User.create({
 					username: username,
 					name: name,
 					email: email,
@@ -52,10 +61,17 @@ exports.userSignup = async (req, res, next) => {
 	}
 };
 
+const generateAccessToken = (id, name) => {
+    return jwt.sign({ userId : id, name: name} ,'secretkey');
+}
+
 exports.userSignin = async (req, res, next) => {
 	try {
 		const { username, password } = req.body;
-		const user = await Signup.findAll({
+		if(isstringinvalid(username)  || isstringinvalid(password)){
+			return res.status(400).json({err: "Bad parameters . Something is missing"})
+		}
+		const user = await User.findAll({
 			where: {
 				username: username,
 			},
@@ -68,10 +84,15 @@ exports.userSignin = async (req, res, next) => {
 					throw new Error("Internal Error");
 				}
 				if (result === true) {
-					return res.status(200).json({
-						success: true,
-						message: "User Logged in successfully",
-					});
+
+					return res.status(200).json(
+						{success: true, 
+						message: "User logged in successfully",
+					    token: generateAccessToken(user[0].id, user[0].name)})
+					// return res.status(200).json({
+					// 	success: true,
+					// 	message: "User Logged in successfully",
+					// });
 				} else {
 					return res.status(400).json({
 						success: false,

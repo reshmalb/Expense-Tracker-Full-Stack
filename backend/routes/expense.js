@@ -1,12 +1,13 @@
 const express= require('express');
 const router=express.Router();
 const expense=require('../controllers/expense')
+const userauthentication = require('../middlewares/auth')
 
 
-// router.get('/user/:username',signup.checkUsername)
 
-router.get('/expense/retievedata',expense.retrieveAllExpenseData)
-router.post('/expense/storedata',expense.createExpense)
+
+router.get('/expense/retievedata', userauthentication.authenticate,expense.retrieveAllExpenseData)
+router.post('/expense/storedata', userauthentication.authenticate,expense.createExpense)
 // router.patch('/expense/updatedata',signup.userSignin)
 // router.delete('/expense/deletedata',signup.userSignin)
 

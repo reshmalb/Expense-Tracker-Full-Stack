@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 const sequelize= require('../utils/database');
 
-const Signup= sequelize.define(
+const User= sequelize.define(
     'signup',{
         username:{
             type: Sequelize.STRING,
@@ -23,4 +23,4 @@ const Signup= sequelize.define(
     }
 )
 
-module.exports = Signup;
+module.exports = User;
