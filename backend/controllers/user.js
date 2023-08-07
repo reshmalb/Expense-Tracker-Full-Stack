@@ -11,17 +11,17 @@ function isstringinvalid(string){
         return false
     }
 }
-exports.userSignup = async (req, res, next) => {
+const userSignup = async (req, res, next) => {
 	try {
-		const username = req.body.username;
+	
 		const name = req.body.name;
 		const email = req.body.email;
 		const password = req.body.password;
-		console.log(username, name, email, password);
+		console.log( name, email, password);
 		/*Check whether usernme already exists */
 		const existingUser = await User.findAll({
 			where: {
-				username: username,
+				email: email,
 			},
 		});
 		/* If Exists */
@@ -31,10 +31,7 @@ exports.userSignup = async (req, res, next) => {
 			bcrypt.hash(password, saltrounds, async (err, hashpass) => {
 				console.log(hashpass);
 				const user = await User.create({
-					username: username,
-					name: name,
-					email: email,
-					password: hashpass,
+					name, email, password:hashpass,
 				});
 
                 console.log("new user------->",user)
@@ -56,7 +53,8 @@ exports.userSignup = async (req, res, next) => {
 				success: false,
 			});
 		}	
-	} catch (error) {	         
+	} catch (error) {	 
+		console.log(error)        
                 return res.status(500).json(error)          
 	}
 };
@@ -65,15 +63,15 @@ const generateAccessToken = (id, name) => {
     return jwt.sign({ userId : id, name: name} ,'secretkey');
 }
 
-exports.userSignin = async (req, res, next) => {
+const userSignin = async (req, res, next) => {
 	try {
-		const { username, password } = req.body;
-		if(isstringinvalid(username)  || isstringinvalid(password)){
+		const { email, password } = req.body;
+		if(isstringinvalid(email)  || isstringinvalid(password)){
 			return res.status(400).json({err: "Bad parameters . Something is missing"})
 		}
 		const user = await User.findAll({
 			where: {
-				username: username,
+				email: email,
 			},
 		});
 		if (user.length > 0) {
@@ -115,3 +113,9 @@ exports.userSignin = async (req, res, next) => {
 	}
 };
 
+module.exports={
+	generateAccessToken,
+	userSignin,
+	userSignup
+
+}
