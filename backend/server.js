@@ -20,6 +20,7 @@ app.use(userRoutes);
 
 app.use(expenseRoutes);
 app.use(purchaseRoutes)
+
 User.hasMany(Expense);
 Expense.belongsTo(User);
 

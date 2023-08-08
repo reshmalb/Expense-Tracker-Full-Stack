@@ -3,12 +3,13 @@ const Expense = require("../models/expense");
 const bcrypt = require("bcryptjs");
 
 exports.createExpense= async(req,res,next)=>{
-    const {amount,description,category}= req.body;
+    const {expenseamount,description,category}= req.body;
+    console.log(expenseamount,description,category)
     
     try{
         const expense= await  Expense.create(
             {
-               amount,
+               expenseamount,
                 description,
                 category,
                 userId: req.user.id
