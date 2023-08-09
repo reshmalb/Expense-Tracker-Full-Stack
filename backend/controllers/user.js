@@ -31,7 +31,7 @@ const userSignup = async (req, res, next) => {
 			bcrypt.hash(password, saltrounds, async (err, hashpass) => {
 				console.log(hashpass);
 				const user = await User.create({
-					name, email, password:hashpass,
+					name, email, password: hashpass, ispremiumuser: false,totalexpense: 0
 				});
 
                 console.log("new user------->",user)
