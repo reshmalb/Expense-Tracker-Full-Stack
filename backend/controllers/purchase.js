@@ -1,6 +1,7 @@
 const Razorpay = require('razorpay');
 const Order = require('../models/order')
 const userController= require('./user')
+const User=require("../models/user")
 require('dotenv').config();
 
 
@@ -57,11 +58,12 @@ const updateTransactionStatus = async (req, res ) => {
         const userId = req.user.id;
 
         const { payment_id, order_id} = req.body;
+        console.log(`pay_id:-->${payment_id}--->orderid:-->${order_id}`)
 
         const order  = await Order.findOne({where : {orderid : order_id}}) //2
-        const promise1 =  order.update({ paymentid: payment_id, status: 'SUCCESSFUL'}) 
-        const promise2 =  req.user.update({ ispremiumuser: true }) 
-
+        const promise1 = await order.update({ paymentid: payment_id, status: 'SUCCESSFUL' }) 
+        const user = await User.findByPk(userId); // Find user by primary key
+        const promise2 = await user.update({ ispremiumuser: true });
         Promise.all([promise1, promise2]).then(()=> {
             return res.status(202).json({sucess: true, message: "Transaction Successful", token: userController.generateAccessToken(userId,undefined , true) });
         }).catch((error ) => {
@@ -72,7 +74,7 @@ const updateTransactionStatus = async (req, res ) => {
                 
     } catch (err) {
         console.log(err);
-        res.status(403).json({ errpr: err, message: 'Sometghing went wrong' })
+        res.status(403).json({ errpr: err, message: 'Something went wrong' })
 
     }
 }
