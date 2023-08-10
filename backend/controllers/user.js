@@ -25,11 +25,9 @@ const userSignup = async (req, res, next) => {
 			},
 		});
 		/* If Exists */
-		if (existingUser.length === 0) {
-			
+		if (existingUser.length === 0) {			
 			const saltrounds = 10;
 			bcrypt.hash(password, saltrounds, async (err, hashpass) => {
-				console.log(hashpass);
 				const user = await User.create({
 					name, email, password: hashpass, ispremiumuser: false,totalexpense: 0
 				});
@@ -38,11 +36,9 @@ const userSignup = async (req, res, next) => {
                 if(err){
                     throw new Error("Something went wrong...")
                 }
-
-
                 return  res.status(200).json({
                     message:" Signed up successfully"
-                })
+             })
 
                 
 
