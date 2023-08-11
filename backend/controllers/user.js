@@ -78,6 +78,7 @@ const userSignin = async (req, res, next) => {
 					throw new Error("Internal Error");
 				}
 				if (result === true) {
+					console.log(result)
 
 					return res.status(200).json(
 						{success: true, 

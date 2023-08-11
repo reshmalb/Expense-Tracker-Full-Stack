@@ -9,7 +9,7 @@ const userauthentication = require('../middlewares/auth')
 router.get('/expense/retievedata', userauthentication.authenticate,expense.retrieveAllExpenseData)
 router.post('/expense/storedata', userauthentication.authenticate,expense.createExpense)
 // router.patch('/expense/updatedata',signup.userSignin)
-router.delete('/expense/deletedata/:expenseid',userauthentication.authenticate,expense.deleteexpense)
+router.delete('/deletedata/:expenseid',userauthentication.authenticate,expense.deleteexpense)
 
 
 
